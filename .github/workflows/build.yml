@@ -1,0 +1,40 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore
+        run: dotnet restore src/PinShot/PinShot.csproj --runtime win-x64
+
+      - name: Build
+        run: dotnet build src/PinShot/PinShot.csproj --configuration Release --no-restore
+
+      - name: Publish
+        run: dotnet publish src/PinShot/PinShot.csproj --configuration Release --runtime win-x64 --self-contained true --output publish --no-restore
+
+      - name: Create zip
+        shell: pwsh
+        run: Compress-Archive -Path publish/* -DestinationPath PinShot-win-x64.zip -Force
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: PinShot-win-x64
+          path: PinShot-win-x64.zip
