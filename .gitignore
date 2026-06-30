@@ -1,0 +1,10 @@
+bin/
+obj/
+publish/
+release/
+.vs/
+.vscode/.vs/
+*.user
+*.suo
+*.zip
+*.log
