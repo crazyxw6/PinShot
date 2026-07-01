@@ -17,21 +17,21 @@ internal sealed class PinForm : Form
         ShowInTaskbar = false;
         StartPosition = FormStartPosition.CenterScreen;
         FormBorderStyle = FormBorderStyle.None;
-        BackColor = Color.FromArgb(0, 122, 255);
+        BackColor = Color.Black;
         MinimumSize = new Size(80, 60);
-        Padding = new Padding(1);
         ClientSize = GetInitialSize(image.Size);
 
         pictureBox = new PictureBox
         {
             Dock = DockStyle.Fill,
             Image = image,
-            SizeMode = PictureBoxSizeMode.Zoom
+            SizeMode = PictureBoxSizeMode.StretchImage
         };
 
         pictureBox.MouseDown += OnDragMouseDown;
         pictureBox.MouseMove += OnDragMouseMove;
         pictureBox.MouseWheel += OnMouseWheelResize;
+        pictureBox.Paint += DrawPinnedBorder;
         pictureBox.DoubleClick += (_, _) => Close();
         pictureBox.ContextMenuStrip = BuildMenu();
 
@@ -113,7 +113,7 @@ internal sealed class PinForm : Form
     private void OnMouseWheelResize(object? sender, MouseEventArgs e)
     {
         var factor = e.Delta > 0 ? 1.08 : 0.92;
-        var nextWidth = Math.Clamp((int)(Width * factor), 80, 3000);
+        var nextWidth = Math.Clamp((int)(ClientSize.Width * factor), 80, 3000);
         var nextHeight = Math.Clamp((int)(nextWidth / aspectRatio), 60, 2200);
 
         if (nextHeight is 60 or 2200)
@@ -121,13 +121,24 @@ internal sealed class PinForm : Form
             nextWidth = Math.Clamp((int)(nextHeight * aspectRatio), 80, 3000);
         }
 
-        Size = new Size(nextWidth, nextHeight);
+        ClientSize = new Size(nextWidth, nextHeight);
     }
 
     private static Size GetInitialSize(Size imageSize)
     {
         return new Size(
-            Math.Max(80, imageSize.Width + 2),
-            Math.Max(60, imageSize.Height + 2));
+            Math.Max(80, imageSize.Width),
+            Math.Max(60, imageSize.Height));
+    }
+
+    private static void DrawPinnedBorder(object? sender, PaintEventArgs e)
+    {
+        if (sender is not PictureBox box || box.Width <= 1 || box.Height <= 1)
+        {
+            return;
+        }
+
+        using var border = new Pen(Color.FromArgb(72, 182, 255), 1);
+        e.Graphics.DrawRectangle(border, 0, 0, box.Width - 1, box.Height - 1);
     }
 }
