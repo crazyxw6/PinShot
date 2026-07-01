@@ -7,6 +7,9 @@ on:
     branches: [main]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build-windows:
     runs-on: windows-latest
@@ -14,6 +17,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -38,3 +43,23 @@ jobs:
         with:
           name: PinShot-win-x64
           path: PinShot-win-x64.zip
+
+      - name: Update latest release
+        if: github.event_name != 'pull_request'
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git tag -f latest
+          git push origin latest --force
+
+          gh release view latest --repo $env:GITHUB_REPOSITORY
+          if ($LASTEXITCODE -ne 0) {
+            gh release create latest PinShot-win-x64.zip --repo $env:GITHUB_REPOSITORY --title "PinShot latest" --notes "Latest automatic build from main." --latest
+          } else {
+            gh release upload latest PinShot-win-x64.zip --repo $env:GITHUB_REPOSITORY --clobber
+            gh release edit latest --repo $env:GITHUB_REPOSITORY --title "PinShot latest" --notes "Latest automatic build from main." --latest
+          }
