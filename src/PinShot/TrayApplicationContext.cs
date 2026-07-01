@@ -46,9 +46,20 @@ internal sealed class TrayApplicationContext : ApplicationContext
         var menu = new ContextMenuStrip();
         menu.Items.Add("区域截图", null, (_, _) => CaptureArea());
         menu.Items.Add("设置快捷键", null, (_, _) => OpenSettings());
+        menu.Items.Add("关于", null, (_, _) => ShowAbout());
         menu.Items.Add(new ToolStripSeparator());
         menu.Items.Add("退出", null, (_, _) => ExitThread());
         return menu;
+    }
+
+    private static void ShowAbout()
+    {
+        var version = typeof(TrayApplicationContext).Assembly.GetName().Version?.ToString(3) ?? "1.0.0";
+        MessageBox.Show(
+            $"PinShot {version}\n\n轻量截图和贴图工具。\n\nMIT License",
+            "关于 PinShot",
+            MessageBoxButtons.OK,
+            MessageBoxIcon.Information);
     }
 
     private void RegisterHotkey()

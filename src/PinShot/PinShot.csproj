@@ -9,5 +9,8 @@
     <ApplicationIcon>AppIcon.ico</ApplicationIcon>
     <AssemblyName>PinShot</AssemblyName>
     <RootNamespace>PinShot</RootNamespace>
+    <Version>1.0.0</Version>
+    <FileVersion>1.0.0.0</FileVersion>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
   </PropertyGroup>
 </Project>
