@@ -15,7 +15,6 @@ internal sealed class AnnotationEditorForm : Form
     private readonly TextOptionsToolbar textOptionsToolbar;
     private readonly Stack<Bitmap> undoStack = new();
     private readonly System.Windows.Forms.Timer caretTimer = new() { Interval = 520 };
-    private Bitmap? toolbarDragPreview;
     private string activeText = string.Empty;
     private Point activeTextImageLocation;
     private AnnotationTool? currentTool;
@@ -340,7 +339,6 @@ internal sealed class AnnotationEditorForm : Form
                 image.Dispose();
             }
 
-            toolbarDragPreview?.Dispose();
         }
 
         base.Dispose(disposing);
@@ -385,9 +383,6 @@ internal sealed class AnnotationEditorForm : Form
 
     private void BeginSelectionMove()
     {
-        toolbarDragPreview?.Dispose();
-        toolbarDragPreview = new Bitmap(toolbar.Width, toolbar.Height);
-        toolbar.DrawToBitmap(toolbarDragPreview, new Rectangle(Point.Empty, toolbar.Size));
         toolbarDragBounds = toolbar.Bounds;
         toolbar.Visible = false;
     }
@@ -402,8 +397,6 @@ internal sealed class AnnotationEditorForm : Form
         var previousToolbarBounds = toolbarDragBounds;
         PositionToolbar();
         toolbar.Visible = true;
-        toolbarDragPreview?.Dispose();
-        toolbarDragPreview = null;
         toolbarDragBounds = Rectangle.Empty;
         Invalidate(InflateForRepaint(previousToolbarBounds));
         Invalidate(InflateForRepaint(toolbar.Bounds));
@@ -411,12 +404,12 @@ internal sealed class AnnotationEditorForm : Form
 
     private void DrawToolbarDragPreview(Graphics graphics)
     {
-        if (toolbarDragPreview is null || toolbarDragBounds.IsEmpty)
+        if (toolbarDragBounds.IsEmpty)
         {
             return;
         }
 
-        graphics.DrawImageUnscaled(toolbarDragPreview, toolbarDragBounds.Location);
+        toolbar.DrawDragPreview(graphics, toolbarDragBounds.Location);
     }
 
     private void DrawPreview(Graphics graphics)

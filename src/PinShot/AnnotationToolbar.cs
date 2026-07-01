@@ -76,11 +76,24 @@ internal sealed class AnnotationToolbar : Control
 
     protected override void OnPaint(PaintEventArgs e)
     {
-        e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+        DrawToolbar(e.Graphics);
+    }
+
+    internal void DrawDragPreview(Graphics graphics, Point location)
+    {
+        var state = graphics.Save();
+        graphics.TranslateTransform(location.X, location.Y);
+        DrawToolbar(graphics);
+        graphics.Restore(state);
+    }
+
+    private void DrawToolbar(Graphics graphics)
+    {
+        graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
 
         var panelRect = new RectangleF(0.5f, 0.5f, Width - 1, Height - 1);
-        e.Graphics.FillCrystalPanel(panelRect, 9);
-        e.Graphics.DrawCrystalPanelBorder(panelRect, 9);
+        graphics.FillCrystalPanel(panelRect, 9);
+        graphics.DrawCrystalPanelBorder(panelRect, 9);
 
         for (var i = 0; i < items.Count; i++)
         {
@@ -89,11 +102,11 @@ internal sealed class AnnotationToolbar : Control
 
             if (item.IsSeparator)
             {
-                DrawSeparator(e.Graphics, bounds);
+                DrawSeparator(graphics, bounds);
                 continue;
             }
 
-            DrawButton(e.Graphics, item, bounds, i);
+            DrawButton(graphics, item, bounds, i);
         }
     }
 
