@@ -4,12 +4,15 @@ internal static class GraphicsExtensions
 {
     public static void FillCrystalPanel(this Graphics graphics, RectangleF bounds, float radius)
     {
-        // Keep the toolbar body visually transparent; buttons and borders carry the shape.
+        using var path = CreateRoundedRectanglePath(bounds, radius);
+        using var brush = new SolidBrush(Color.FromArgb(150, 52, 31, 22));
+        graphics.FillPath(brush, path);
     }
 
     public static void DrawCrystalPanelBorder(this Graphics graphics, RectangleF bounds, float radius)
     {
-        // Intentionally empty: the floating toolbar should have no visible container.
+        using var borderPen = new Pen(Color.FromArgb(205, 214, 96, 42), 1);
+        graphics.DrawRoundedRectangle(borderPen, bounds, radius);
     }
 
     public static void DrawCrystalSelectionBorder(this Graphics graphics, Rectangle bounds)
@@ -19,22 +22,31 @@ internal static class GraphicsExtensions
             return;
         }
 
-        using var glowPen = new Pen(Color.FromArgb(74, 164, 226, 255), 5);
-        using var edgeBrush = new LinearGradientBrush(
-            bounds,
-            Color.FromArgb(215, 255, 255, 255),
-            Color.FromArgb(175, 54, 190, 255),
-            LinearGradientMode.ForwardDiagonal);
-        using var edgePen = new Pen(edgeBrush, 2);
-        using var innerPen = new Pen(Color.FromArgb(105, 255, 255, 255), 1);
+        using var borderPen = new Pen(Color.FromArgb(0, 132, 255), 2);
+        graphics.DrawRectangle(borderPen, bounds);
+    }
 
-        graphics.DrawRectangle(glowPen, bounds);
-        graphics.DrawRectangle(edgePen, bounds);
-
-        if (bounds.Width > 8 && bounds.Height > 8)
+    public static void DrawSelectionSizeBadge(this Graphics graphics, Rectangle bounds)
+    {
+        if (bounds.Width <= 2 || bounds.Height <= 2)
         {
-            graphics.DrawRectangle(innerPen, Rectangle.Inflate(bounds, -3, -3));
+            return;
         }
+
+        var text = $"{bounds.Width} x {bounds.Height}";
+        using var font = new Font("Segoe UI", 11, FontStyle.Regular);
+        var textSize = graphics.MeasureString(text, font);
+        var badge = new RectangleF(
+            bounds.Left,
+            Math.Max(2, bounds.Top - textSize.Height - 3),
+            textSize.Width + 8,
+            textSize.Height + 2);
+
+        using var background = new SolidBrush(Color.FromArgb(230, 0, 132, 255));
+        using var textBrush = new SolidBrush(Color.White);
+
+        graphics.FillRectangle(background, badge);
+        graphics.DrawString(text, font, textBrush, badge.X + 4, badge.Y);
     }
 
     public static void FillRoundedRectangle(this Graphics graphics, Brush brush, RectangleF bounds, float radius)

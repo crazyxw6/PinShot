@@ -53,6 +53,7 @@ internal sealed class CaptureOverlayForm : Form
         e.Graphics.ResetClip();
 
         e.Graphics.DrawCrystalSelectionBorder(selection);
+        e.Graphics.DrawSelectionSizeBadge(selection);
     }
 
     protected override void OnMouseDown(MouseEventArgs e)

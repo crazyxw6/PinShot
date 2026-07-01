@@ -73,6 +73,9 @@ internal sealed class TextOptionsToolbar : Control
             var item = items[i];
             if (item.IsSeparator)
             {
+                using var pen = new Pen(Color.FromArgb(90, 214, 96, 42), 1);
+                var x = bounds.Left + bounds.Width / 2;
+                e.Graphics.DrawLine(pen, x, bounds.Top + 7, x, bounds.Bottom - 7);
                 continue;
             }
 
@@ -141,12 +144,12 @@ internal sealed class TextOptionsToolbar : Control
     {
         var selected = IsSelected(item);
         var fill = selected
-            ? Color.FromArgb(34, 43, 171, 255)
+            ? Color.FromArgb(96, 214, 96, 42)
             : index == pressedIndex
-                ? Color.FromArgb(24, 255, 255, 255)
+                ? Color.FromArgb(70, 255, 181, 92)
                 : index == hoveredIndex
-                    ? Color.FromArgb(14, 255, 255, 255)
-                    : Color.Transparent;
+                    ? Color.FromArgb(44, 255, 181, 92)
+                    : Color.FromArgb(10, 255, 255, 255);
 
         using var fillBrush = new SolidBrush(fill);
         graphics.FillRoundedRectangle(fillBrush, new RectangleF(bounds.X, bounds.Y, bounds.Width, bounds.Height), 5);
@@ -161,7 +164,7 @@ internal sealed class TextOptionsToolbar : Control
             return;
         }
 
-        var textColor = Color.FromArgb(238, 255, 255, 255);
+        var textColor = Color.FromArgb(238, 245, 232, 215);
         using var textBrush = new SolidBrush(textColor);
         using var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
         var label = item.Command switch

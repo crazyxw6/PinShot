@@ -100,6 +100,7 @@ internal sealed class AnnotationEditorForm : Form
         }
 
         e.Graphics.DrawCrystalSelectionBorder(imageBounds);
+        e.Graphics.DrawSelectionSizeBadge(imageBounds);
 
         DrawPreview(e.Graphics);
         DrawActiveText(e.Graphics);
