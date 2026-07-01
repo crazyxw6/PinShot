@@ -128,6 +128,7 @@ internal sealed class AnnotationEditorForm : Form
             if (resizeDirection != ResizeDirection.None)
             {
                 resizingSelection = true;
+                toolbar.Visible = false;
                 moveStartPoint = e.Location;
                 moveStartBounds = imageBounds;
                 Cursor = GetResizeCursor(resizeDirection);
@@ -137,6 +138,7 @@ internal sealed class AnnotationEditorForm : Form
             if (imageBounds.Contains(e.Location))
             {
                 movingSelection = true;
+                toolbar.Visible = false;
                 moveStartPoint = e.Location;
                 moveStartBounds = imageBounds;
                 Cursor = Cursors.SizeAll;
@@ -237,6 +239,7 @@ internal sealed class AnnotationEditorForm : Form
             resizingSelection = false;
             resizeDirection = ResizeDirection.None;
             Cursor = Cursors.Cross;
+            ShowToolbarAfterSelectionMove();
             return;
         }
 
@@ -244,6 +247,7 @@ internal sealed class AnnotationEditorForm : Form
         {
             movingSelection = false;
             Cursor = Cursors.Cross;
+            ShowToolbarAfterSelectionMove();
             return;
         }
 
@@ -364,6 +368,13 @@ internal sealed class AnnotationEditorForm : Form
         {
             textOptionsToolbar.Top = toolbar.Top - textOptionsToolbar.Height - 8;
         }
+    }
+
+    private void ShowToolbarAfterSelectionMove()
+    {
+        PositionToolbar();
+        toolbar.Visible = true;
+        Invalidate(InflateForRepaint(toolbar.Bounds));
     }
 
     private void DrawPreview(Graphics graphics)
