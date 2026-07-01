@@ -33,11 +33,12 @@ internal sealed class AnnotationToolbar : Control
 
         Size = GetPreferredSize(Size.Empty);
         Cursor = Cursors.Default;
-        BackColor = Color.FromArgb(18, 18, 20);
+        BackColor = Color.Transparent;
         SetStyle(
             ControlStyles.AllPaintingInWmPaint |
             ControlStyles.OptimizedDoubleBuffer |
             ControlStyles.ResizeRedraw |
+            ControlStyles.SupportsTransparentBackColor |
             ControlStyles.UserPaint,
             true);
     }
@@ -76,13 +77,10 @@ internal sealed class AnnotationToolbar : Control
     protected override void OnPaint(PaintEventArgs e)
     {
         e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-        e.Graphics.Clear(BackColor);
 
-        using var panelBrush = new SolidBrush(Color.FromArgb(226, 18, 18, 20));
-        using var borderPen = new Pen(Color.FromArgb(120, 255, 255, 255), 1);
         var panelRect = new RectangleF(0.5f, 0.5f, Width - 1, Height - 1);
-        e.Graphics.FillRoundedRectangle(panelBrush, panelRect, 8);
-        e.Graphics.DrawRoundedRectangle(borderPen, panelRect, 8);
+        e.Graphics.FillCrystalPanel(panelRect, 9);
+        e.Graphics.DrawCrystalPanelBorder(panelRect, 9);
 
         for (var i = 0; i < items.Count; i++)
         {
@@ -165,17 +163,17 @@ internal sealed class AnnotationToolbar : Control
         var hovered = index == hoveredIndex;
 
         var fill = selected
-            ? Color.FromArgb(70, 60, 150, 255)
+            ? Color.FromArgb(34, 43, 171, 255)
             : pressed
-                ? Color.FromArgb(54, 255, 255, 255)
+                ? Color.FromArgb(24, 255, 255, 255)
                 : hovered
-                    ? Color.FromArgb(34, 255, 255, 255)
-                    : Color.FromArgb(8, 255, 255, 255);
+                    ? Color.FromArgb(14, 255, 255, 255)
+                    : Color.Transparent;
 
         using var fillBrush = new SolidBrush(fill);
         graphics.FillRoundedRectangle(fillBrush, new RectangleF(bounds.X, bounds.Y, bounds.Width, bounds.Height), 5);
 
-        var iconColor = Color.FromArgb(238, 255, 255, 255);
+        var iconColor = selected ? Color.White : Color.FromArgb(238, 255, 255, 255);
         using var pen = new Pen(iconColor, 2)
         {
             StartCap = System.Drawing.Drawing2D.LineCap.Round,
@@ -189,9 +187,6 @@ internal sealed class AnnotationToolbar : Control
 
     private static void DrawSeparator(Graphics graphics, Rectangle bounds)
     {
-        using var pen = new Pen(Color.FromArgb(120, 255, 255, 255), 1);
-        var x = bounds.Left + bounds.Width / 2;
-        graphics.DrawLine(pen, x, bounds.Top + 7, x, bounds.Bottom - 7);
     }
 
     private static void DrawIcon(Graphics graphics, ToolbarItem item, Rectangle bounds, Pen pen, Brush brush)

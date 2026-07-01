@@ -35,6 +35,7 @@ internal sealed class CaptureOverlayForm : Form
 
     protected override void OnPaint(PaintEventArgs e)
     {
+        e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
         e.Graphics.DrawImageUnscaled(desktopImage, 0, 0);
 
         using var overlay = new SolidBrush(Color.FromArgb(120, Color.Black));
@@ -51,11 +52,7 @@ internal sealed class CaptureOverlayForm : Form
         e.Graphics.DrawImageUnscaled(desktopImage, 0, 0);
         e.Graphics.ResetClip();
 
-        using var border = new Pen(Color.White, 2);
-        e.Graphics.DrawRectangle(border, selection);
-
-        using var accent = new Pen(Color.FromArgb(40, 150, 255), 1);
-        e.Graphics.DrawRectangle(accent, Rectangle.Inflate(selection, -2, -2));
+        e.Graphics.DrawCrystalSelectionBorder(selection);
     }
 
     protected override void OnMouseDown(MouseEventArgs e)

@@ -34,11 +34,12 @@ internal sealed class TextOptionsToolbar : Control
         ];
 
         Size = GetPreferredSize(Size.Empty);
-        BackColor = Color.FromArgb(18, 18, 20);
+        BackColor = Color.Transparent;
         SetStyle(
             ControlStyles.AllPaintingInWmPaint |
             ControlStyles.OptimizedDoubleBuffer |
             ControlStyles.ResizeRedraw |
+            ControlStyles.SupportsTransparentBackColor |
             ControlStyles.UserPaint,
             true);
     }
@@ -61,13 +62,10 @@ internal sealed class TextOptionsToolbar : Control
     protected override void OnPaint(PaintEventArgs e)
     {
         e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-        e.Graphics.Clear(BackColor);
 
-        using var panelBrush = new SolidBrush(Color.FromArgb(226, 18, 18, 20));
-        using var borderPen = new Pen(Color.FromArgb(120, 255, 255, 255), 1);
         var panelRect = new RectangleF(0.5f, 0.5f, Width - 1, Height - 1);
-        e.Graphics.FillRoundedRectangle(panelBrush, panelRect, 8);
-        e.Graphics.DrawRoundedRectangle(borderPen, panelRect, 8);
+        e.Graphics.FillCrystalPanel(panelRect, 9);
+        e.Graphics.DrawCrystalPanelBorder(panelRect, 9);
 
         for (var i = 0; i < items.Count; i++)
         {
@@ -75,9 +73,6 @@ internal sealed class TextOptionsToolbar : Control
             var item = items[i];
             if (item.IsSeparator)
             {
-                using var pen = new Pen(Color.FromArgb(120, 255, 255, 255), 1);
-                var x = bounds.Left + bounds.Width / 2;
-                e.Graphics.DrawLine(pen, x, bounds.Top + 7, x, bounds.Bottom - 7);
                 continue;
             }
 
@@ -146,12 +141,12 @@ internal sealed class TextOptionsToolbar : Control
     {
         var selected = IsSelected(item);
         var fill = selected
-            ? Color.FromArgb(70, 60, 150, 255)
+            ? Color.FromArgb(34, 43, 171, 255)
             : index == pressedIndex
-                ? Color.FromArgb(54, 255, 255, 255)
+                ? Color.FromArgb(24, 255, 255, 255)
                 : index == hoveredIndex
-                    ? Color.FromArgb(34, 255, 255, 255)
-                    : Color.FromArgb(8, 255, 255, 255);
+                    ? Color.FromArgb(14, 255, 255, 255)
+                    : Color.Transparent;
 
         using var fillBrush = new SolidBrush(fill);
         graphics.FillRoundedRectangle(fillBrush, new RectangleF(bounds.X, bounds.Y, bounds.Width, bounds.Height), 5);
@@ -166,7 +161,8 @@ internal sealed class TextOptionsToolbar : Control
             return;
         }
 
-        using var textBrush = new SolidBrush(Color.White);
+        var textColor = Color.FromArgb(238, 255, 255, 255);
+        using var textBrush = new SolidBrush(textColor);
         using var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
         var label = item.Command switch
         {
@@ -195,7 +191,7 @@ internal sealed class TextOptionsToolbar : Control
 
         if (item.Command == TextOptionCommand.Outline)
         {
-            using var pen = new Pen(Color.White, 1);
+            using var pen = new Pen(textColor, 1);
             graphics.DrawLine(pen, bounds.Left + 9, bounds.Bottom - 8, bounds.Right - 9, bounds.Bottom - 8);
         }
     }

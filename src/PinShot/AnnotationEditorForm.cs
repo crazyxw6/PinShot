@@ -82,6 +82,7 @@ internal sealed class AnnotationEditorForm : Form
 
     protected override void OnPaint(PaintEventArgs e)
     {
+        e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
         e.Graphics.DrawImageUnscaled(desktopImage, 0, 0);
 
         using var dim = new SolidBrush(Color.FromArgb(88, Color.Black));
@@ -98,8 +99,7 @@ internal sealed class AnnotationEditorForm : Form
             e.Graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.Bilinear;
         }
 
-        using var border = new Pen(Color.FromArgb(0, 122, 255), 2);
-        e.Graphics.DrawRectangle(border, imageBounds);
+        e.Graphics.DrawCrystalSelectionBorder(imageBounds);
 
         DrawPreview(e.Graphics);
         DrawActiveText(e.Graphics);
