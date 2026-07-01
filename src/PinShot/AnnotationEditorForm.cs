@@ -15,6 +15,7 @@ internal sealed class AnnotationEditorForm : Form
     private readonly TextOptionsToolbar textOptionsToolbar;
     private readonly Stack<Bitmap> undoStack = new();
     private readonly System.Windows.Forms.Timer caretTimer = new() { Interval = 520 };
+    private Bitmap? toolbarDragPreview;
     private string activeText = string.Empty;
     private Point activeTextImageLocation;
     private AnnotationTool? currentTool;
@@ -22,6 +23,7 @@ internal sealed class AnnotationEditorForm : Form
     private Point currentPoint;
     private Point moveStartPoint;
     private Rectangle moveStartBounds;
+    private Rectangle toolbarDragBounds;
     private ResizeDirection resizeDirection;
     private bool drawing;
     private bool movingSelection;
@@ -104,6 +106,7 @@ internal sealed class AnnotationEditorForm : Form
 
         DrawPreview(e.Graphics);
         DrawActiveText(e.Graphics);
+        DrawToolbarDragPreview(e.Graphics);
     }
 
     protected override void OnMouseDown(MouseEventArgs e)
@@ -132,6 +135,7 @@ internal sealed class AnnotationEditorForm : Form
                 moveStartPoint = e.Location;
                 moveStartBounds = imageBounds;
                 Cursor = GetResizeCursor(resizeDirection);
+                BeginSelectionMove();
                 return;
             }
 
@@ -141,6 +145,7 @@ internal sealed class AnnotationEditorForm : Form
                 moveStartPoint = e.Location;
                 moveStartBounds = imageBounds;
                 Cursor = Cursors.SizeAll;
+                BeginSelectionMove();
             }
 
             return;
@@ -170,9 +175,9 @@ internal sealed class AnnotationEditorForm : Form
         if (resizingSelection)
         {
             var previousBounds = imageBounds;
-            var previousToolbarBounds = toolbar.Bounds;
+            var previousToolbarBounds = toolbarDragBounds;
             imageBounds = ResizeImageBounds(moveStartBounds, moveStartPoint, e.Location, resizeDirection);
-            PositionToolbar();
+            UpdateToolbarDragBounds();
             InvalidateSelectionChange(previousBounds, previousToolbarBounds);
             return;
         }
@@ -180,7 +185,7 @@ internal sealed class AnnotationEditorForm : Form
         if (movingSelection)
         {
             var previousBounds = imageBounds;
-            var previousToolbarBounds = toolbar.Bounds;
+            var previousToolbarBounds = toolbarDragBounds;
             var offsetX = e.X - moveStartPoint.X;
             var offsetY = e.Y - moveStartPoint.Y;
             imageBounds = ClampImageBounds(new Rectangle(
@@ -188,7 +193,7 @@ internal sealed class AnnotationEditorForm : Form
                 moveStartBounds.Top + offsetY,
                 moveStartBounds.Width,
                 moveStartBounds.Height));
-            PositionToolbar();
+            UpdateToolbarDragBounds();
             InvalidateSelectionChange(previousBounds, previousToolbarBounds);
             return;
         }
@@ -238,8 +243,7 @@ internal sealed class AnnotationEditorForm : Form
             resizingSelection = false;
             resizeDirection = ResizeDirection.None;
             Cursor = Cursors.Cross;
-            PositionToolbar();
-            Invalidate(InflateForRepaint(toolbar.Bounds));
+            EndSelectionMove();
             return;
         }
 
@@ -247,8 +251,7 @@ internal sealed class AnnotationEditorForm : Form
         {
             movingSelection = false;
             Cursor = Cursors.Cross;
-            PositionToolbar();
-            Invalidate(InflateForRepaint(toolbar.Bounds));
+            EndSelectionMove();
             return;
         }
 
@@ -336,6 +339,8 @@ internal sealed class AnnotationEditorForm : Form
             {
                 image.Dispose();
             }
+
+            toolbarDragPreview?.Dispose();
         }
 
         base.Dispose(disposing);
@@ -351,16 +356,7 @@ internal sealed class AnnotationEditorForm : Form
 
     private void PositionToolbar()
     {
-        var left = imageBounds.Left + (imageBounds.Width - toolbar.Width) / 2;
-        var top = imageBounds.Bottom + 12;
-
-        if (top + toolbar.Height > ClientSize.Height - 8)
-        {
-            top = imageBounds.Top - toolbar.Height - 12;
-        }
-
-        toolbar.Left = Math.Clamp(left, 8, Math.Max(8, ClientSize.Width - toolbar.Width - 8));
-        toolbar.Top = Math.Clamp(top, 8, Math.Max(8, ClientSize.Height - toolbar.Height - 8));
+        toolbar.Bounds = GetToolbarBounds(imageBounds);
 
         textOptionsToolbar.Left = toolbar.Left;
         textOptionsToolbar.Top = toolbar.Top + toolbar.Height + 8;
@@ -369,6 +365,58 @@ internal sealed class AnnotationEditorForm : Form
         {
             textOptionsToolbar.Top = toolbar.Top - textOptionsToolbar.Height - 8;
         }
+    }
+
+    private Rectangle GetToolbarBounds(Rectangle bounds)
+    {
+        var left = bounds.Left + (bounds.Width - toolbar.Width) / 2;
+        var top = bounds.Bottom + 12;
+
+        if (top + toolbar.Height > ClientSize.Height - 8)
+        {
+            top = bounds.Top - toolbar.Height - 12;
+        }
+
+        left = Math.Clamp(left, 8, Math.Max(8, ClientSize.Width - toolbar.Width - 8));
+        top = Math.Clamp(top, 8, Math.Max(8, ClientSize.Height - toolbar.Height - 8));
+
+        return new Rectangle(left, top, toolbar.Width, toolbar.Height);
+    }
+
+    private void BeginSelectionMove()
+    {
+        toolbarDragPreview?.Dispose();
+        toolbarDragPreview = new Bitmap(toolbar.Width, toolbar.Height);
+        toolbar.DrawToBitmap(toolbarDragPreview, new Rectangle(Point.Empty, toolbar.Size));
+        toolbarDragBounds = toolbar.Bounds;
+        toolbar.Visible = false;
+    }
+
+    private void UpdateToolbarDragBounds()
+    {
+        toolbarDragBounds = GetToolbarBounds(imageBounds);
+    }
+
+    private void EndSelectionMove()
+    {
+        var previousToolbarBounds = toolbarDragBounds;
+        PositionToolbar();
+        toolbar.Visible = true;
+        toolbarDragPreview?.Dispose();
+        toolbarDragPreview = null;
+        toolbarDragBounds = Rectangle.Empty;
+        Invalidate(InflateForRepaint(previousToolbarBounds));
+        Invalidate(InflateForRepaint(toolbar.Bounds));
+    }
+
+    private void DrawToolbarDragPreview(Graphics graphics)
+    {
+        if (toolbarDragPreview is null || toolbarDragBounds.IsEmpty)
+        {
+            return;
+        }
+
+        graphics.DrawImageUnscaled(toolbarDragPreview, toolbarDragBounds.Location);
     }
 
     private void DrawPreview(Graphics graphics)
