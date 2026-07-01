@@ -1,53 +1,3 @@
-namespace PinShot;
-
-internal sealed class TrayApplicationContext : ApplicationContext
-{
-    private readonly NotifyIcon trayIcon;
-    private readonly Icon appIcon;
-    private readonly HotkeyManager hotkeyManager;
-    private SettingsData settings;
-    private Hotkey captureHotkey;
-
-    public TrayApplicationContext()
-    {
-        settings = SettingsData.Load();
-        captureHotkey = Hotkey.TryParse(settings.CaptureHotkey, out var parsedHotkey) ? parsedHotkey : Hotkey.Default;
-        appIcon = Icon.ExtractAssociatedIcon(Application.ExecutablePath) ?? SystemIcons.Application;
-
-        trayIcon = new NotifyIcon
-        {
-            Icon = appIcon,
-            Text = "PinShot",
-            Visible = true,
-            ContextMenuStrip = BuildMenu()
-        };
-        trayIcon.DoubleClick += (_, _) => CaptureArea();
-
-        hotkeyManager = new HotkeyManager(CaptureArea);
-        RegisterHotkey();
-    }
-
-    protected override void Dispose(bool disposing)
-    {
-        if (disposing)
-        {
-            hotkeyManager.Dispose();
-            trayIcon.Visible = false;
-            trayIcon.Dispose();
-            appIcon.Dispose();
-        }
-
-        base.Dispose(disposing);
-    }
-
-    private ContextMenuStrip BuildMenu()
-    {
-        var menu = new ContextMenuStrip();
-        menu.Items.Add("区域截图", null, (_, _) => CaptureArea());
-        menu.Items.Add("设置快捷键", null, (_, _) => OpenSettings());
-        menu.Items.Add(new ToolStripSeparator());
-        menu.Items.Add("退出", null, (_, _) => ExitThread());
-        return menu;
     }
 
     private void RegisterHotkey()
@@ -91,9 +41,23 @@ internal sealed class TrayApplicationContext : ApplicationContext
             return;
         }
 
-        captureHotkey = form.SelectedHotkey;
+        var previousHotkey = captureHotkey;
+        var selectedHotkey = form.SelectedHotkey;
+        if (!hotkeyManager.Register(selectedHotkey))
+        {
+            captureHotkey = previousHotkey;
+            RegisterHotkey();
+
+            trayIcon.ShowBalloonTip(
+                3000,
+                "PinShot",
+                $"快捷键 {selectedHotkey} 已被占用，已保留原快捷键 {previousHotkey}。",
+                ToolTipIcon.Warning);
+            return;
+        }
+
+        captureHotkey = selectedHotkey;
         settings.CaptureHotkey = captureHotkey.ToString();
         settings.Save();
-        RegisterHotkey();
     }
 }
