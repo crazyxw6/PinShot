@@ -5,13 +5,13 @@ internal static class GraphicsExtensions
     public static void FillCrystalPanel(this Graphics graphics, RectangleF bounds, float radius)
     {
         using var path = CreateRoundedRectanglePath(bounds, radius);
-        using var brush = new SolidBrush(Color.FromArgb(150, 52, 31, 22));
+        using var brush = new SolidBrush(Color.FromArgb(156, 12, 24, 38));
         graphics.FillPath(brush, path);
     }
 
     public static void DrawCrystalPanelBorder(this Graphics graphics, RectangleF bounds, float radius)
     {
-        using var borderPen = new Pen(Color.FromArgb(205, 214, 96, 42), 1);
+        using var borderPen = new Pen(Color.FromArgb(190, 178, 230, 255), 1);
         graphics.DrawRoundedRectangle(borderPen, bounds, radius);
     }
 
@@ -22,7 +22,7 @@ internal static class GraphicsExtensions
             return;
         }
 
-        using var borderPen = new Pen(Color.FromArgb(0, 132, 255), 2);
+        using var borderPen = new Pen(Color.FromArgb(72, 182, 255), 2);
         graphics.DrawRectangle(borderPen, bounds);
     }
 
@@ -42,7 +42,7 @@ internal static class GraphicsExtensions
             textSize.Width + 8,
             textSize.Height + 2);
 
-        using var background = new SolidBrush(Color.FromArgb(230, 0, 132, 255));
+        using var background = new SolidBrush(Color.FromArgb(232, 72, 182, 255));
         using var textBrush = new SolidBrush(Color.White);
 
         graphics.FillRectangle(background, badge);

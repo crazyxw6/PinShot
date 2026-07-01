@@ -73,7 +73,7 @@ internal sealed class TextOptionsToolbar : Control
             var item = items[i];
             if (item.IsSeparator)
             {
-                using var pen = new Pen(Color.FromArgb(90, 214, 96, 42), 1);
+                using var pen = new Pen(Color.FromArgb(82, 178, 230, 255), 1);
                 var x = bounds.Left + bounds.Width / 2;
                 e.Graphics.DrawLine(pen, x, bounds.Top + 7, x, bounds.Bottom - 7);
                 continue;
@@ -144,11 +144,11 @@ internal sealed class TextOptionsToolbar : Control
     {
         var selected = IsSelected(item);
         var fill = selected
-            ? Color.FromArgb(96, 214, 96, 42)
+            ? Color.FromArgb(86, 126, 210, 255)
             : index == pressedIndex
-                ? Color.FromArgb(70, 255, 181, 92)
+                ? Color.FromArgb(62, 208, 240, 255)
                 : index == hoveredIndex
-                    ? Color.FromArgb(44, 255, 181, 92)
+                    ? Color.FromArgb(38, 208, 240, 255)
                     : Color.FromArgb(10, 255, 255, 255);
 
         using var fillBrush = new SolidBrush(fill);
@@ -164,7 +164,7 @@ internal sealed class TextOptionsToolbar : Control
             return;
         }
 
-        var textColor = Color.FromArgb(238, 245, 232, 215);
+        var textColor = Color.FromArgb(238, 236, 248, 255);
         using var textBrush = new SolidBrush(textColor);
         using var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
         var label = item.Command switch

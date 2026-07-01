@@ -163,17 +163,17 @@ internal sealed class AnnotationToolbar : Control
         var hovered = index == hoveredIndex;
 
         var fill = selected
-            ? Color.FromArgb(96, 214, 96, 42)
+            ? Color.FromArgb(86, 126, 210, 255)
             : pressed
-                ? Color.FromArgb(70, 255, 181, 92)
+                ? Color.FromArgb(62, 208, 240, 255)
                 : hovered
-                    ? Color.FromArgb(44, 255, 181, 92)
+                    ? Color.FromArgb(38, 208, 240, 255)
                     : Color.FromArgb(10, 255, 255, 255);
 
         using var fillBrush = new SolidBrush(fill);
         graphics.FillRoundedRectangle(fillBrush, new RectangleF(bounds.X, bounds.Y, bounds.Width, bounds.Height), 5);
 
-        var iconColor = selected ? Color.White : Color.FromArgb(238, 245, 232, 215);
+        var iconColor = selected ? Color.White : Color.FromArgb(238, 236, 248, 255);
         using var pen = new Pen(iconColor, 2)
         {
             StartCap = System.Drawing.Drawing2D.LineCap.Round,
@@ -187,7 +187,7 @@ internal sealed class AnnotationToolbar : Control
 
     private static void DrawSeparator(Graphics graphics, Rectangle bounds)
     {
-        using var pen = new Pen(Color.FromArgb(90, 214, 96, 42), 1);
+        using var pen = new Pen(Color.FromArgb(82, 178, 230, 255), 1);
         var x = bounds.Left + bounds.Width / 2;
         graphics.DrawLine(pen, x, bounds.Top + 8, x, bounds.Bottom - 8);
     }

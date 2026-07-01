@@ -129,7 +129,6 @@ internal sealed class AnnotationEditorForm : Form
             if (resizeDirection != ResizeDirection.None)
             {
                 resizingSelection = true;
-                toolbar.Visible = false;
                 moveStartPoint = e.Location;
                 moveStartBounds = imageBounds;
                 Cursor = GetResizeCursor(resizeDirection);
@@ -139,7 +138,6 @@ internal sealed class AnnotationEditorForm : Form
             if (imageBounds.Contains(e.Location))
             {
                 movingSelection = true;
-                toolbar.Visible = false;
                 moveStartPoint = e.Location;
                 moveStartBounds = imageBounds;
                 Cursor = Cursors.SizeAll;
@@ -240,7 +238,8 @@ internal sealed class AnnotationEditorForm : Form
             resizingSelection = false;
             resizeDirection = ResizeDirection.None;
             Cursor = Cursors.Cross;
-            ShowToolbarAfterSelectionMove();
+            PositionToolbar();
+            Invalidate(InflateForRepaint(toolbar.Bounds));
             return;
         }
 
@@ -248,7 +247,8 @@ internal sealed class AnnotationEditorForm : Form
         {
             movingSelection = false;
             Cursor = Cursors.Cross;
-            ShowToolbarAfterSelectionMove();
+            PositionToolbar();
+            Invalidate(InflateForRepaint(toolbar.Bounds));
             return;
         }
 
@@ -369,13 +369,6 @@ internal sealed class AnnotationEditorForm : Form
         {
             textOptionsToolbar.Top = toolbar.Top - textOptionsToolbar.Height - 8;
         }
-    }
-
-    private void ShowToolbarAfterSelectionMove()
-    {
-        PositionToolbar();
-        toolbar.Visible = true;
-        Invalidate(InflateForRepaint(toolbar.Bounds));
     }
 
     private void DrawPreview(Graphics graphics)
@@ -805,10 +798,19 @@ internal sealed class AnnotationEditorForm : Form
 
     private void InvalidateSelectionChange(Rectangle previousBounds, Rectangle previousToolbarBounds)
     {
-        Invalidate(InflateForRepaint(previousBounds));
-        Invalidate(InflateForRepaint(imageBounds));
+        Invalidate(InflateSelectionForRepaint(previousBounds));
+        Invalidate(InflateSelectionForRepaint(imageBounds));
         Invalidate(InflateForRepaint(previousToolbarBounds));
         Invalidate(InflateForRepaint(toolbar.Bounds));
+    }
+
+    private static Rectangle InflateSelectionForRepaint(Rectangle bounds)
+    {
+        var inflated = bounds;
+        inflated.Inflate(14, 14);
+        inflated.Y -= 32;
+        inflated.Height += 32;
+        return inflated;
     }
 
     private static Rectangle InflateForRepaint(Rectangle bounds)
