@@ -26,6 +26,7 @@ internal sealed class TrayApplicationContext : ApplicationContext
 
         hotkeyManager = new HotkeyManager(CaptureArea);
         RegisterHotkey();
+        ShowTrayHintOnce();
     }
 
     protected override void Dispose(bool disposing)
@@ -60,6 +61,23 @@ internal sealed class TrayApplicationContext : ApplicationContext
             "关于 PinShot",
             MessageBoxButtons.OK,
             MessageBoxIcon.Information);
+    }
+
+    private void ShowTrayHintOnce()
+    {
+        if (settings.HasSeenTrayHint)
+        {
+            return;
+        }
+
+        trayIcon.ShowBalloonTip(
+            4000,
+            "PinShot 正在托盘运行",
+            $"按 {captureHotkey} 开始截图，也可以右键托盘图标打开菜单。",
+            ToolTipIcon.Info);
+
+        settings.HasSeenTrayHint = true;
+        settings.Save();
     }
 
     private void RegisterHotkey()
@@ -99,7 +117,7 @@ internal sealed class TrayApplicationContext : ApplicationContext
                 return;
             }
 
-            Clipboard.SetImage(editor.ResultImage);
+            Clipboard.SetImage(new Bitmap(editor.ResultImage));
             new PinForm(editor.ResultImage).Show();
         }
         finally

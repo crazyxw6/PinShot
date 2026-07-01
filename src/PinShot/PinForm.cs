@@ -4,11 +4,13 @@ internal sealed class PinForm : Form
 {
     private readonly Bitmap image;
     private readonly PictureBox pictureBox;
+    private readonly double aspectRatio;
     private Point dragStart;
 
     public PinForm(Bitmap image)
     {
         this.image = image;
+        aspectRatio = (double)image.Width / image.Height;
 
         Text = "PinShot 贴图";
         TopMost = true;
@@ -98,7 +100,13 @@ internal sealed class PinForm : Form
     {
         var factor = e.Delta > 0 ? 1.08 : 0.92;
         var nextWidth = Math.Clamp((int)(Width * factor), 80, 3000);
-        var nextHeight = Math.Clamp((int)(Height * factor), 60, 2200);
+        var nextHeight = Math.Clamp((int)(nextWidth / aspectRatio), 60, 2200);
+
+        if (nextHeight is 60 or 2200)
+        {
+            nextWidth = Math.Clamp((int)(nextHeight * aspectRatio), 80, 3000);
+        }
+
         Size = new Size(nextWidth, nextHeight);
     }
 

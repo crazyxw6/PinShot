@@ -7,6 +7,7 @@ internal sealed class SettingsData
     private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true };
 
     public string CaptureHotkey { get; set; } = Hotkey.Default.ToString();
+    public bool HasSeenTrayHint { get; set; }
 
     public static string SettingsDirectory =>
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "PinShot");

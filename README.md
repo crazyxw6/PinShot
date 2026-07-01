@@ -4,6 +4,8 @@ PinShot is a lightweight Windows screenshot and screen-pinning tool.
 
 It is made for quick screenshots, simple annotations, and keeping captured images pinned on top of your desktop.
 
+![PinShot screenshot](docs/screenshot.png)
+
 ## Download
 
 Download the latest Windows ZIP from Releases:
