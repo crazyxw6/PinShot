@@ -118,6 +118,11 @@ internal sealed class AnnotationEditorForm : Form
 
         if (currentTool is null)
         {
+            if (hasAnnotations)
+            {
+                return;
+            }
+
             resizeDirection = HitTestResize(e.Location);
             if (resizeDirection != ResizeDirection.None)
             {
@@ -188,7 +193,7 @@ internal sealed class AnnotationEditorForm : Form
 
         if (!drawing)
         {
-            if (currentTool is null)
+            if (currentTool is null && !hasAnnotations)
             {
                 var direction = HitTestResize(e.Location);
                 Cursor = direction != ResizeDirection.None

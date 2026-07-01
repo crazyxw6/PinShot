@@ -7,6 +7,7 @@ internal sealed class TrayApplicationContext : ApplicationContext
     private readonly HotkeyManager hotkeyManager;
     private SettingsData settings;
     private Hotkey captureHotkey;
+    private bool isCapturing;
 
     public TrayApplicationContext()
     {
@@ -66,21 +67,34 @@ internal sealed class TrayApplicationContext : ApplicationContext
 
     private void CaptureArea()
     {
-        using var desktop = CaptureService.CaptureDesktop(out var virtualScreen);
-        using var capture = CaptureOverlayForm.SelectArea(desktop, virtualScreen);
-        if (capture is null)
+        if (isCapturing)
         {
             return;
         }
 
-        using var editor = new AnnotationEditorForm(desktop, virtualScreen, capture.Image, capture.ImageBounds);
-        if (editor.ShowDialog() != DialogResult.OK || editor.ResultImage is null)
+        isCapturing = true;
+        try
         {
-            return;
-        }
+            using var desktop = CaptureService.CaptureDesktop(out var virtualScreen);
+            using var capture = CaptureOverlayForm.SelectArea(desktop, virtualScreen);
+            if (capture is null)
+            {
+                return;
+            }
 
-        Clipboard.SetImage(editor.ResultImage);
-        new PinForm(editor.ResultImage).Show();
+            using var editor = new AnnotationEditorForm(desktop, virtualScreen, capture.Image, capture.ImageBounds);
+            if (editor.ShowDialog() != DialogResult.OK || editor.ResultImage is null)
+            {
+                return;
+            }
+
+            Clipboard.SetImage(editor.ResultImage);
+            new PinForm(editor.ResultImage).Show();
+        }
+        finally
+        {
+            isCapturing = false;
+        }
     }
 
     private void OpenSettings()
