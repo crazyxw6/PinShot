@@ -17,8 +17,9 @@ internal sealed class PinForm : Form
         ShowInTaskbar = false;
         StartPosition = FormStartPosition.CenterScreen;
         FormBorderStyle = FormBorderStyle.None;
-        BackColor = Color.White;
+        BackColor = Color.FromArgb(0, 122, 255);
         MinimumSize = new Size(80, 60);
+        Padding = new Padding(1);
         ClientSize = GetInitialSize(image.Size);
 
         pictureBox = new PictureBox
@@ -52,8 +53,16 @@ internal sealed class PinForm : Form
     private ContextMenuStrip BuildMenu()
     {
         var menu = new ContextMenuStrip();
-        menu.Items.Add("复制", null, (_, _) => Clipboard.SetImage(image));
+        menu.Items.Add("复制", null, (_, _) => Clipboard.SetImage(new Bitmap(image)));
         menu.Items.Add("保存为...", null, (_, _) => SaveImage());
+        menu.Items.Add(new ToolStripSeparator());
+        var topMostItem = new ToolStripMenuItem(GetTopMostMenuText());
+        topMostItem.Click += (_, _) =>
+        {
+            TopMost = !TopMost;
+            topMostItem.Text = GetTopMostMenuText();
+        };
+        menu.Items.Add(topMostItem);
         menu.Items.Add(new ToolStripSeparator());
         menu.Items.Add("不透明度 100%", null, (_, _) => Opacity = 1.0);
         menu.Items.Add("不透明度 80%", null, (_, _) => Opacity = 0.8);
@@ -61,6 +70,11 @@ internal sealed class PinForm : Form
         menu.Items.Add(new ToolStripSeparator());
         menu.Items.Add("关闭", null, (_, _) => Close());
         return menu;
+    }
+
+    private string GetTopMostMenuText()
+    {
+        return TopMost ? "取消置顶" : "置顶";
     }
 
     private void SaveImage()
