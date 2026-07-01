@@ -94,9 +94,9 @@ internal sealed class AnnotationEditorForm : Form
         }
         else
         {
-            e.Graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
-            e.Graphics.DrawImage(desktopImage, imageBounds, imageBounds, GraphicsUnit.Pixel);
-            e.Graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.Bilinear;
+            e.Graphics.SetClip(imageBounds);
+            e.Graphics.DrawImageUnscaled(desktopImage, 0, 0);
+            e.Graphics.ResetClip();
         }
 
         e.Graphics.DrawCrystalSelectionBorder(imageBounds);

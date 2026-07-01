@@ -126,10 +126,8 @@ internal sealed class PinForm : Form
 
     private static Size GetInitialSize(Size imageSize)
     {
-        const int maxWidth = 900;
-        const int maxHeight = 700;
-
-        var scale = Math.Min(1.0, Math.Min((double)maxWidth / imageSize.Width, (double)maxHeight / imageSize.Height));
-        return new Size(Math.Max(80, (int)(imageSize.Width * scale)), Math.Max(60, (int)(imageSize.Height * scale)));
+        return new Size(
+            Math.Max(80, imageSize.Width + 2),
+            Math.Max(60, imageSize.Height + 2));
     }
 }

@@ -107,10 +107,6 @@ internal sealed class AnnotationToolbar : Control
         Region = new Region(path);
     }
 
-    protected override void OnPaintBackground(PaintEventArgs e)
-    {
-    }
-
     protected override void OnMouseMove(MouseEventArgs e)
     {
         var nextHovered = HitTest(e.Location);
