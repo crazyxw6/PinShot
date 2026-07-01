@@ -4,6 +4,7 @@ internal sealed class AnnotationEditorForm : Form
 {
     private const int ResizeGripSize = 7;
     private const int MinimumSelectionSize = 24;
+    private const int MaxUndoSteps = 20;
 
     private readonly Bitmap desktopImage;
     private readonly Rectangle virtualScreen;
@@ -592,31 +593,32 @@ internal sealed class AnnotationEditorForm : Form
             return;
         }
 
-        using var source = canvas.Clone(safeRect, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-        using var blurred = new Bitmap(safeRect.Width, safeRect.Height);
-
-        for (var y = 0; y < blurred.Height; y++)
+        const int blockSize = 10;
+        using var graphics = Graphics.FromImage(canvas);
+        for (var y = safeRect.Top; y < safeRect.Bottom; y += blockSize)
         {
-            for (var x = 0; x < blurred.Width; x++)
+            for (var x = safeRect.Left; x < safeRect.Right; x += blockSize)
             {
-                blurred.SetPixel(x, y, AverageColor(source, x, y, 5));
+                var block = Rectangle.Intersect(
+                    new Rectangle(x, y, blockSize, blockSize),
+                    safeRect);
+                using var brush = new SolidBrush(AverageColor(canvas, block));
+
+                graphics.FillRectangle(brush, block);
             }
         }
-
-        using var graphics = Graphics.FromImage(canvas);
-        graphics.DrawImageUnscaled(blurred, safeRect.Location);
     }
 
-    private static Color AverageColor(Bitmap image, int centerX, int centerY, int radius)
+    private static Color AverageColor(Bitmap image, Rectangle rect)
     {
         var r = 0;
         var g = 0;
         var b = 0;
         var count = 0;
 
-        for (var y = Math.Max(0, centerY - radius); y <= Math.Min(image.Height - 1, centerY + radius); y++)
+        for (var y = rect.Top; y < rect.Bottom; y++)
         {
-            for (var x = Math.Max(0, centerX - radius); x <= Math.Min(image.Width - 1, centerX + radius); x++)
+            for (var x = rect.Left; x < rect.Right; x++)
             {
                 var color = image.GetPixel(x, y);
                 r += color.R;
@@ -632,6 +634,17 @@ internal sealed class AnnotationEditorForm : Form
     private void PushUndo()
     {
         undoStack.Push(new Bitmap(canvas));
+        while (undoStack.Count > MaxUndoSteps)
+        {
+            var items = undoStack.ToArray();
+            undoStack.Clear();
+            items[^1].Dispose();
+
+            for (var i = items.Length - 2; i >= 0; i--)
+            {
+                undoStack.Push(items[i]);
+            }
+        }
     }
 
     private void Undo()
