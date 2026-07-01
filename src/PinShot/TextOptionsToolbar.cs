@@ -34,7 +34,6 @@ internal sealed class TextOptionsToolbar : Control
         ];
 
         Size = GetPreferredSize(Size.Empty);
-        BackColor = Color.Transparent;
         SetStyle(
             ControlStyles.AllPaintingInWmPaint |
             ControlStyles.OptimizedDoubleBuffer |
@@ -42,6 +41,7 @@ internal sealed class TextOptionsToolbar : Control
             ControlStyles.SupportsTransparentBackColor |
             ControlStyles.UserPaint,
             true);
+        BackColor = Color.Transparent;
     }
 
     public event Action? OptionsChanged;
@@ -86,6 +86,10 @@ internal sealed class TextOptionsToolbar : Control
 
         using var path = GraphicsExtensions.CreateRoundedRectanglePath(new RectangleF(0, 0, Width, Height), 8);
         Region = new Region(path);
+    }
+
+    protected override void OnPaintBackground(PaintEventArgs e)
+    {
     }
 
     protected override void OnMouseMove(MouseEventArgs e)

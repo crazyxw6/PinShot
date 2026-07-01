@@ -33,7 +33,6 @@ internal sealed class AnnotationToolbar : Control
 
         Size = GetPreferredSize(Size.Empty);
         Cursor = Cursors.Default;
-        BackColor = Color.Transparent;
         SetStyle(
             ControlStyles.AllPaintingInWmPaint |
             ControlStyles.OptimizedDoubleBuffer |
@@ -41,6 +40,7 @@ internal sealed class AnnotationToolbar : Control
             ControlStyles.SupportsTransparentBackColor |
             ControlStyles.UserPaint,
             true);
+        BackColor = Color.Transparent;
     }
 
     public event Action<AnnotationTool>? ToolChanged;
@@ -105,6 +105,10 @@ internal sealed class AnnotationToolbar : Control
             new RectangleF(0, 0, Width, Height),
             8);
         Region = new Region(path);
+    }
+
+    protected override void OnPaintBackground(PaintEventArgs e)
+    {
     }
 
     protected override void OnMouseMove(MouseEventArgs e)
