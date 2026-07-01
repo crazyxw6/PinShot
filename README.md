@@ -71,12 +71,6 @@ Compress-Archive -Path publish/* -DestinationPath PinShot-win-x64.zip -Force
 
 GitHub Actions also builds `PinShot-win-x64.zip` automatically on pushes to `main`.
 
-## 中文说明
-
-普通用户请直接下载 Releases 里的 `PinShot-win-x64.zip`，解压后双击 `PinShot.exe` 使用。
-
-不需要安装 .NET SDK，也不需要安装 VS Code。
-
 ## License
 
 MIT License.
